@@ -1,3 +1,5 @@
+#[macro_use]
+mod diagnostics;
 // Take a look at the license at the top of the repository in the LICENSE file.
 
 mod boxed_derive;
@@ -19,7 +21,7 @@ mod utils;
 
 use flags_attribute::AttrInput;
 use proc_macro::TokenStream;
-use proc_macro_error2::proc_macro_error;
+
 use syn::{parse_macro_input, DeriveInput};
 use utils::{parse_nested_meta_items_from_stream, NestedMetaItem};
 
@@ -283,7 +285,6 @@ use utils::{parse_nested_meta_items_from_stream, NestedMetaItem};
 /// }
 /// ```
 #[proc_macro]
-#[proc_macro_error]
 pub fn clone(item: TokenStream) -> TokenStream {
     clone::clone_inner(item)
 }
@@ -423,7 +424,6 @@ pub fn clone(item: TokenStream) -> TokenStream {
 /// assert_eq!(closure.invoke::<String>(&[]), "Hello Moon!");
 /// ```
 #[proc_macro]
-#[proc_macro_error]
 pub fn closure(item: TokenStream) -> TokenStream {
     closure::closure_inner(item, "new")
 }
@@ -434,7 +434,6 @@ pub fn closure(item: TokenStream) -> TokenStream {
 ///
 /// [`Closure::new_local`]: ../glib/closure/struct.Closure.html#method.new_local
 #[proc_macro]
-#[proc_macro_error]
 pub fn closure_local(item: TokenStream) -> TokenStream {
     closure::closure_inner(item, "new_local")
 }
@@ -461,7 +460,6 @@ pub fn closure_local(item: TokenStream) -> TokenStream {
 ///
 /// [`glib::Value`]: ../glib/value/struct.Value.html
 #[proc_macro_derive(Enum, attributes(enum_type, enum_value))]
-#[proc_macro_error]
 pub fn enum_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let gen = enum_derive::impl_enum(&input);
@@ -499,7 +497,6 @@ pub fn enum_derive(input: TokenStream) -> TokenStream {
 ///
 /// [`glib::Value`]: ../glib/value/struct.Value.html
 #[proc_macro_attribute]
-#[proc_macro_error]
 pub fn flags(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut name = NestedMetaItem::<syn::LitStr>::new("name")
         .required()
@@ -536,7 +533,6 @@ pub fn flags(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// [`ErrorDomain`]: ../glib/error/trait.ErrorDomain.html
 #[proc_macro_derive(ErrorDomain, attributes(error_domain))]
-#[proc_macro_error]
 pub fn error_domain_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let gen = error_domain_derive::impl_error_domain(&input);
@@ -565,7 +561,6 @@ pub fn error_domain_derive(input: TokenStream) -> TokenStream {
 /// [`BoxedType`]: ../glib/subclass/boxed/trait.BoxedType.html
 /// [`glib::Value`]: ../glib/value/struct.Value.html
 #[proc_macro_derive(Boxed, attributes(boxed_type))]
-#[proc_macro_error]
 pub fn boxed_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let gen = boxed_derive::impl_boxed(&input);
@@ -599,7 +594,6 @@ pub fn boxed_derive(input: TokenStream) -> TokenStream {
 /// [`SharedType`]: ../glib/subclass/shared/trait.SharedType.html
 /// [`glib::Value`]: ../glib/value/struct.Value.html
 #[proc_macro_derive(SharedBoxed, attributes(shared_boxed_type))]
-#[proc_macro_error]
 pub fn shared_boxed_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let gen = shared_boxed_derive::impl_shared_boxed(&input);
@@ -636,9 +630,8 @@ pub fn shared_boxed_derive(input: TokenStream) -> TokenStream {
 ///
 /// [`ObjectSubclass`]: ../glib/subclass/types/trait.ObjectSubclass.html
 #[proc_macro_attribute]
-#[proc_macro_error]
 pub fn object_subclass(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    use proc_macro_error2::abort_call_site;
+
     match syn::parse::<syn::ItemImpl>(item) {
         Ok(input) => object_subclass_attribute::impl_object_subclass(&input).into(),
         Err(_) => abort_call_site!(object_subclass_attribute::WRONG_PLACE_MSG),
@@ -661,9 +654,8 @@ pub fn object_subclass(_attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// [`ObjectInterface`]: ../glib/subclass/interface/trait.ObjectInterface.html
 #[proc_macro_attribute]
-#[proc_macro_error]
 pub fn object_interface(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    use proc_macro_error2::abort_call_site;
+
     match syn::parse::<syn::ItemImpl>(item) {
         Ok(input) => object_interface_attribute::impl_object_interface(&input).into(),
         Err(_) => abort_call_site!(object_interface_attribute::WRONG_PLACE_MSG),
@@ -840,7 +832,6 @@ pub fn downgrade(input: TokenStream) -> TokenStream {
 /// [`FlagsClass`]: ../glib/struct.FlagsClass.html
 /// [kebab case]: https://docs.rs/heck/0.4.0/heck/trait.ToKebabCase.html
 #[proc_macro_derive(Variant, attributes(variant_enum))]
-#[proc_macro_error]
 pub fn variant_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     variant_derive::impl_variant(input)
@@ -1024,9 +1015,8 @@ pub fn derive_props(input: TokenStream) -> TokenStream {
 /// }
 /// ```
 #[proc_macro_attribute]
-#[proc_macro_error]
 pub fn derived_properties(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    use proc_macro_error2::abort_call_site;
+
     match syn::parse::<syn::ItemImpl>(item) {
         Ok(input) => derived_properties_attribute::impl_derived_properties(&input).into(),
         Err(_) => abort_call_site!(derived_properties_attribute::WRONG_PLACE_MSG),

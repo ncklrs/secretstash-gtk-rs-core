@@ -1,7 +1,7 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
 use proc_macro2::{Ident, TokenStream};
-use proc_macro_error2::abort_call_site;
+
 use quote::quote;
 
 use crate::utils::{crate_ident_new, parse_nested_meta_items, NestedMetaItem};

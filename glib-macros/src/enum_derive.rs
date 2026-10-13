@@ -2,7 +2,7 @@
 
 use heck::{ToKebabCase, ToUpperCamelCase};
 use proc_macro2::TokenStream;
-use proc_macro_error2::abort_call_site;
+
 use quote::{quote, quote_spanned};
 use syn::{punctuated::Punctuated, spanned::Spanned, token::Comma, Data, Ident, Variant};
 
