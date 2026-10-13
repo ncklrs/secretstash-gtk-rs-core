@@ -2,7 +2,7 @@
 
 use heck::ToKebabCase;
 use proc_macro::TokenStream;
-use proc_macro_error::abort;
+
 use quote::{format_ident, quote};
 use syn::{Data, DeriveInput, Fields, FieldsNamed, FieldsUnnamed, Generics, Ident, Type};
 
@@ -14,7 +14,10 @@ pub fn impl_variant(input: DeriveInput) -> TokenStream {
             derive_variant_for_struct(input.ident, input.generics, data_struct)
         }
         Data::Enum(data_enum) => {
-            let mode = get_enum_mode(&input.attrs);
+            let mode = match get_enum_mode(&input.attrs) {
+                Ok(mode) => mode,
+                Err(error) => return error.into_compile_error().into(),
+            };
             let has_data = data_enum
                 .variants
                 .iter()
@@ -626,12 +629,12 @@ fn derive_variant_for_c_enum(
     derived.into()
 }
 
-fn get_enum_mode(attrs: &[syn::Attribute]) -> EnumMode {
+fn get_enum_mode(attrs: &[syn::Attribute]) -> syn::Result<EnumMode> {
     let attr = attrs.iter().find(|a| a.path().is_ident("variant_enum"));
 
     let attr = match attr {
         Some(attr) => attr,
-        None => return EnumMode::String,
+        None => return Ok(EnumMode::String),
     };
 
     let mut repr_attr = None;
@@ -651,16 +654,14 @@ fn get_enum_mode(attrs: &[syn::Attribute]) -> EnumMode {
         }
         Ok(())
     })
-    .unwrap();
-    match mode {
+    ?;
+    Ok(match mode {
         EnumMode::String if repr_attr.is_some() => {
             let repr_attr = repr_attr.unwrap();
-            let repr = get_repr(attrs).unwrap_or_else(|| {
-                abort!(
-                    repr_attr,
-                    "Must have #[repr] attribute with one of i8, i16, i32, i64, u8, u16, u32, u64"
-                )
-            });
+            let repr = get_repr(attrs).ok_or_else(|| syn::Error::new_spanned(
+                repr_attr,
+                "Must have #[repr] attribute with one of i8, i16, i32, i64, u8, u16, u32, u64"
+            ))?;
             EnumMode::Repr(repr)
         }
         EnumMode::Enum { .. } => EnumMode::Enum {
@@ -670,7 +671,7 @@ fn get_enum_mode(attrs: &[syn::Attribute]) -> EnumMode {
             repr: repr_attr.is_some(),
         },
         e => e,
-    }
+    })
 }
 
 fn get_repr(attrs: &[syn::Attribute]) -> Option<Ident> {
