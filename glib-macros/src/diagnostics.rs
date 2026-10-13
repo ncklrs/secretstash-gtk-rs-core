@@ -28,3 +28,24 @@ macro_rules! abort {
 macro_rules! abort_span {
     ($span:expr, $($message:tt)*) => { return crate::diagnostics::output(syn::Error::new($span, diagnostic_message!($($message)*))) };
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn abort_emits_a_compiler_error() {
+        fn invalid() -> TokenStream { abort_call_site!("invalid macro input"); }
+        let tokens = invalid().to_string();
+        assert!(tokens.contains("compile_error"));
+        assert!(tokens.contains("invalid macro input"));
+    }
+
+    #[test]
+    fn parser_abort_returns_an_error_without_panicking() {
+        fn invalid() -> syn::Result<()> {
+            abort_span!(proc_macro2::Span::call_site(), "invalid capture");
+        }
+        assert_eq!(invalid().unwrap_err().to_string(), "invalid capture");
+    }
+}
