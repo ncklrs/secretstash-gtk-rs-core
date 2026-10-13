@@ -19,7 +19,7 @@ mod utils;
 
 use flags_attribute::AttrInput;
 use proc_macro::TokenStream;
-use proc_macro_error::proc_macro_error;
+use proc_macro_error2::proc_macro_error;
 use syn::{parse_macro_input, DeriveInput};
 use utils::{parse_nested_meta_items_from_stream, NestedMetaItem};
 
@@ -638,7 +638,7 @@ pub fn shared_boxed_derive(input: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 #[proc_macro_error]
 pub fn object_subclass(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    use proc_macro_error::abort_call_site;
+    use proc_macro_error2::abort_call_site;
     match syn::parse::<syn::ItemImpl>(item) {
         Ok(input) => object_subclass_attribute::impl_object_subclass(&input).into(),
         Err(_) => abort_call_site!(object_subclass_attribute::WRONG_PLACE_MSG),
@@ -663,7 +663,7 @@ pub fn object_subclass(_attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 #[proc_macro_error]
 pub fn object_interface(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    use proc_macro_error::abort_call_site;
+    use proc_macro_error2::abort_call_site;
     match syn::parse::<syn::ItemImpl>(item) {
         Ok(input) => object_interface_attribute::impl_object_interface(&input).into(),
         Err(_) => abort_call_site!(object_interface_attribute::WRONG_PLACE_MSG),
@@ -1026,7 +1026,7 @@ pub fn derive_props(input: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 #[proc_macro_error]
 pub fn derived_properties(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    use proc_macro_error::abort_call_site;
+    use proc_macro_error2::abort_call_site;
     match syn::parse::<syn::ItemImpl>(item) {
         Ok(input) => derived_properties_attribute::impl_derived_properties(&input).into(),
         Err(_) => abort_call_site!(derived_properties_attribute::WRONG_PLACE_MSG),

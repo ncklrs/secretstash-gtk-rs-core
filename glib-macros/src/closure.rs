@@ -1,7 +1,7 @@
 // Take a look at the license at the top of the repository in the LICENSE file.
 
 use proc_macro2::{Ident, Span, TokenStream};
-use proc_macro_error::abort;
+use proc_macro_error2::abort;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{ext::IdentExt, spanned::Spanned, Token};
 
